@@ -12,15 +12,10 @@ export interface Client {
 
 export interface Policy {
   id: number;
-  policyNumber: string;
-  type: PolicyType;
-  startDate: string;
-  endDate: string;
-  premium: number;
-  coverageAmount: number;
+  policyName: string;
   status: PolicyStatus;
-  clientId: number;
-  client?: Client;
+  coverageStartDate: string;
+  coverageEndDate: string;
   createdAt: string;
   updatedAt: string;
 }
@@ -38,6 +33,7 @@ export enum PolicyStatus {
   EXPIRED = "EXPIRED",
   CANCELLED = "CANCELLED",
   PENDING = "PENDING",
+  INACTIVE = "INACTIVE",
 }
 
 export interface CreateClientRequest {
@@ -54,14 +50,10 @@ export interface UpdateClientRequest extends CreateClientRequest {
 }
 
 export interface CreatePolicyRequest {
-  policyNumber: string;
-  type: PolicyType;
-  startDate: string;
-  endDate: string;
-  premium: number;
-  coverageAmount: number;
+  policyName: string;
   status: PolicyStatus;
-  clientId: number;
+  coverageStartDate: string;
+  coverageEndDate: string;
 }
 
 export interface UpdatePolicyRequest extends CreatePolicyRequest {

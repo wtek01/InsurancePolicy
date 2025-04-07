@@ -21,11 +21,32 @@ const EditPolicy = () => {
       try {
         setLoading(true);
         const response = await policyApi.getById(Number(id));
-        setPolicy(response.data);
-        setError(null);
+        console.log("API Response for edit policy:", response);
+
+        // Handle the response properly
+        if (response) {
+          if ("data" in response && response.data) {
+            setPolicy(response.data);
+          } else if (
+            typeof response === "object" &&
+            response !== null &&
+            "id" in response &&
+            "policyName" in response
+          ) {
+            setPolicy(response as Policy);
+          } else {
+            throw new Error("Invalid response format");
+          }
+          setError(null);
+        } else {
+          console.error("No policy data found in response");
+          setError("Failed to load policy data. Policy not found.");
+          setPolicy(null);
+        }
       } catch (err) {
         console.error("Error fetching policy:", err);
         setError("Failed to load policy data. Please try again later.");
+        setPolicy(null);
       } finally {
         setLoading(false);
       }
@@ -45,8 +66,14 @@ const EditPolicy = () => {
         id: policy.id,
       };
 
-      await policyApi.update(updateData);
-      navigate(`/policies/${policy.id}`);
+      const response = await policyApi.update(updateData);
+      console.log("Update response:", response);
+
+      if (response && (response.data || "id" in response)) {
+        navigate(`/policies/${policy.id}`);
+      } else {
+        setError("Failed to update policy. Unexpected response from server.");
+      }
     } catch (err) {
       console.error("Error updating policy:", err);
       setError("Failed to update policy. Please try again.");

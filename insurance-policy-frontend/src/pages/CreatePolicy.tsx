@@ -1,34 +1,38 @@
-import { useEffect, useState } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { policyApi } from "../api/apiClient";
 import Alert from "../components/Alert";
 import PolicyForm from "../components/PolicyForm";
-import { CreatePolicyRequest } from "../types";
+import { CreatePolicyRequest, Policy } from "../types";
 
 const CreatePolicy = () => {
   const navigate = useNavigate();
-  const location = useLocation();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [preSelectedClientId, setPreSelectedClientId] = useState<
-    number | undefined
-  >(undefined);
-
-  useEffect(() => {
-    // Check if we have a clientId from the query params
-    const searchParams = new URLSearchParams(location.search);
-    const clientId = searchParams.get("clientId");
-
-    if (clientId) {
-      setPreSelectedClientId(Number(clientId));
-    }
-  }, [location]);
 
   const handleSubmit = async (policyData: CreatePolicyRequest) => {
     try {
       setLoading(true);
       const response = await policyApi.create(policyData);
-      navigate(`/policies/${response.data.id}`);
+      console.log("API Response for create policy:", response);
+
+      // Handle the response properly
+      let policyId: number | undefined;
+
+      if (response) {
+        if ("data" in response && response.data && "id" in response.data) {
+          policyId = response.data.id;
+        } else if ("id" in response) {
+          policyId = (response as Policy).id;
+        }
+      }
+
+      if (policyId) {
+        navigate(`/policies/${policyId}`);
+      } else {
+        console.error("Invalid response after creating policy:", response);
+        setError("Failed to create policy. Unexpected response from server.");
+      }
     } catch (err) {
       console.error("Error creating policy:", err);
       setError("Failed to create policy. Please try again.");
@@ -42,11 +46,7 @@ const CreatePolicy = () => {
       <h1>Create New Policy</h1>
       {error && <Alert type="error">{error}</Alert>}
       <div className="card">
-        <PolicyForm
-          onSubmit={handleSubmit}
-          isLoading={loading}
-          preSelectedClientId={preSelectedClientId}
-        />
+        <PolicyForm onSubmit={handleSubmit} isLoading={loading} />
       </div>
     </div>
   );

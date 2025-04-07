@@ -10,16 +10,54 @@ const Policies = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  // Helper function to check if an object is a Policy
+  const isPolicy = (item: unknown): item is Policy => {
+    return (
+      typeof item === "object" &&
+      item !== null &&
+      "id" in item &&
+      "policyName" in item &&
+      "status" in item
+    );
+  };
+
+  // Helper function to check if an array contains Policy objects
+  const isPolicyArray = (items: unknown[]): items is Policy[] => {
+    return items.length === 0 || isPolicy(items[0]);
+  };
+
   useEffect(() => {
     const fetchPolicies = async () => {
       try {
         setLoading(true);
         const response = await policyApi.getAll();
-        setPolicies(response.data);
+        console.log("API Response:", response);
+
+        // Initialize empty policies array
+        let policiesData: Policy[] = [];
+
+        // Handle different response formats
+        if (Array.isArray(response)) {
+          // Direct array response
+          if (isPolicyArray(response)) {
+            policiesData = response;
+          }
+        } else if (response && typeof response === "object") {
+          // Response with data property
+          if ("data" in response && Array.isArray(response.data)) {
+            if (isPolicyArray(response.data)) {
+              policiesData = response.data;
+            }
+          }
+        }
+
+        console.log("Processed policy data:", policiesData);
+        setPolicies(policiesData);
         setError(null);
       } catch (err) {
         console.error("Error fetching policies:", err);
         setError("Failed to load policies. Please try again later.");
+        setPolicies([]);
       } finally {
         setLoading(false);
       }
@@ -56,30 +94,28 @@ const Policies = () => {
 
       {error && <Alert type="error">{error}</Alert>}
 
-      {policies.length === 0 ? (
+      {!policies || policies.length === 0 ? (
         <p>No policies found. Create a new one to get started.</p>
       ) : (
         <table className="table">
           <thead>
             <tr>
-              <th>Policy Number</th>
-              <th>Type</th>
+              <th>Policy Name</th>
               <th>Status</th>
               <th>Start Date</th>
               <th>End Date</th>
-              <th>Premium</th>
               <th>Actions</th>
             </tr>
           </thead>
           <tbody>
             {policies.map((policy) => (
               <tr key={policy.id}>
-                <td>{policy.policyNumber}</td>
-                <td>{policy.type}</td>
+                <td>{policy.policyName}</td>
                 <td>{policy.status}</td>
-                <td>{new Date(policy.startDate).toLocaleDateString()}</td>
-                <td>{new Date(policy.endDate).toLocaleDateString()}</td>
-                <td>${policy.premium.toFixed(2)}</td>
+                <td>
+                  {new Date(policy.coverageStartDate).toLocaleDateString()}
+                </td>
+                <td>{new Date(policy.coverageEndDate).toLocaleDateString()}</td>
                 <td className="action-buttons">
                   <Link to={`/policies/${policy.id}`}>
                     <button>View</button>
