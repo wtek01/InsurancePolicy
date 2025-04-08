@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { policyApi } from "../api/insuranceApiService";
 import Alert from "../components/Alert";
@@ -25,11 +25,7 @@ const Policies = () => {
   const [sortField, setSortField] = useState(DEFAULT_SORT_FIELD);
   const [sortDirection, setSortDirection] = useState(DEFAULT_SORT_DIRECTION);
 
-  useEffect(() => {
-    fetchPolicies();
-  }, [currentPage, pageSize, sortField, sortDirection]);
-
-  const fetchPolicies = async () => {
+  const fetchPolicies = useCallback(async () => {
     try {
       setLoading(true);
       const response = await policyApi.getPaginated(
@@ -56,7 +52,11 @@ const Policies = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [currentPage, pageSize, sortField, sortDirection]);
+
+  useEffect(() => {
+    fetchPolicies();
+  }, [fetchPolicies]);
 
   const handleDeletePolicy = async (id: number) => {
     if (window.confirm("Are you sure you want to delete this policy?")) {
