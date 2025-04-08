@@ -3,6 +3,13 @@ import { Link } from "react-router-dom";
 import { policyApi } from "../api/apiClient";
 import Alert from "../components/Alert";
 import Loading from "../components/Loading";
+import {
+  DEFAULT_PAGE,
+  DEFAULT_PAGE_SIZE,
+  DEFAULT_SORT_DIRECTION,
+  DEFAULT_SORT_FIELD,
+  PAGE_SIZE_OPTIONS,
+} from "../constants/paginationConfig";
 import { Policy } from "../types";
 
 const Policies = () => {
@@ -11,12 +18,12 @@ const Policies = () => {
   const [error, setError] = useState<string | null>(null);
 
   // Pagination state
-  const [currentPage, setCurrentPage] = useState(0);
-  const [pageSize, setPageSize] = useState(10);
+  const [currentPage, setCurrentPage] = useState(DEFAULT_PAGE);
+  const [pageSize, setPageSize] = useState(DEFAULT_PAGE_SIZE);
   const [totalPages, setTotalPages] = useState(0);
   const [totalElements, setTotalElements] = useState(0);
-  const [sortField, setSortField] = useState("id");
-  const [sortDirection, setSortDirection] = useState("asc");
+  const [sortField, setSortField] = useState(DEFAULT_SORT_FIELD);
+  const [sortDirection, setSortDirection] = useState(DEFAULT_SORT_DIRECTION);
 
   useEffect(() => {
     fetchPolicies();
@@ -192,10 +199,11 @@ const Policies = () => {
               aria-label="Items per page"
               title="Items per page"
             >
-              <option value="5">5</option>
-              <option value="10">10</option>
-              <option value="20">20</option>
-              <option value="50">50</option>
+              {PAGE_SIZE_OPTIONS.map((size) => (
+                <option key={size} value={size}>
+                  {size}
+                </option>
+              ))}
             </select>
           </div>
         </>

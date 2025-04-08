@@ -1,5 +1,11 @@
 import axios from "axios";
 import {
+  DEFAULT_PAGE,
+  DEFAULT_PAGE_SIZE,
+  DEFAULT_SORT_DIRECTION,
+  DEFAULT_SORT_FIELD,
+} from "../constants/paginationConfig";
+import {
   ApiResponse,
   Client,
   CreateClientRequest,
@@ -67,10 +73,10 @@ export const policyApi = {
   },
 
   getPaginated: async (
-    page: number = 0,
-    size: number = 10,
-    sort: string = "id",
-    direction: string = "asc"
+    page: number = DEFAULT_PAGE,
+    size: number = DEFAULT_PAGE_SIZE,
+    sort: string = DEFAULT_SORT_FIELD,
+    direction: string = DEFAULT_SORT_DIRECTION
   ): Promise<PagedResponse<Policy>> => {
     const response = await api.get<PagedResponse<Policy>>("/policies/paged", {
       params: { page, size, sort, direction },
