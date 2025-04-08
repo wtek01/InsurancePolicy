@@ -8,19 +8,8 @@ export interface Policy {
   updatedAt: string;
 }
 
-export enum PolicyType {
-  HEALTH = "HEALTH",
-  LIFE = "LIFE",
-  AUTO = "AUTO",
-  HOME = "HOME",
-  TRAVEL = "TRAVEL",
-}
-
 export enum PolicyStatus {
   ACTIVE = "ACTIVE",
-  EXPIRED = "EXPIRED",
-  CANCELLED = "CANCELLED",
-  PENDING = "PENDING",
   INACTIVE = "INACTIVE",
 }
 
