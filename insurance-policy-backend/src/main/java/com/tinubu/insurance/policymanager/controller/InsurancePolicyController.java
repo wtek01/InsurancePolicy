@@ -1,14 +1,25 @@
 package com.tinubu.insurance.policymanager.controller;
 
-import com.tinubu.insurance.policymanager.dto.InsurancePolicyDTO;
-import com.tinubu.insurance.policymanager.service.InsurancePolicyService;
-import jakarta.validation.Valid;
-import lombok.RequiredArgsConstructor;
+import java.util.List;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
-import java.util.List;
+import com.tinubu.insurance.policymanager.dto.InsurancePolicyDTO;
+import com.tinubu.insurance.policymanager.dto.PagedResponse;
+import com.tinubu.insurance.policymanager.service.InsurancePolicyService;
+
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequestMapping("/api/policies")
@@ -21,6 +32,17 @@ public class InsurancePolicyController {
     public ResponseEntity<List<InsurancePolicyDTO>> getAllPolicies() {
         List<InsurancePolicyDTO> policies = policyService.getAllPolicies();
         return ResponseEntity.ok(policies);
+    }
+    
+    @GetMapping("/paged")
+    public ResponseEntity<PagedResponse<InsurancePolicyDTO>> getPoliciesPaginated(
+            @RequestParam(value = "page", defaultValue = "0") int page,
+            @RequestParam(value = "size", defaultValue = "10") int size,
+            @RequestParam(value = "sort", defaultValue = "id") String sort,
+            @RequestParam(value = "direction", defaultValue = "asc") String direction) {
+        
+        PagedResponse<InsurancePolicyDTO> pagedResponse = policyService.getPoliciesPaginated(page, size, sort, direction);
+        return ResponseEntity.ok(pagedResponse);
     }
 
     @GetMapping("/{id}")

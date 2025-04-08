@@ -10,71 +10,74 @@ const Policies = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // Helper function to check if an object is a Policy
-  const isPolicy = (item: unknown): item is Policy => {
-    return (
-      typeof item === "object" &&
-      item !== null &&
-      "id" in item &&
-      "policyName" in item &&
-      "status" in item
-    );
-  };
-
-  // Helper function to check if an array contains Policy objects
-  const isPolicyArray = (items: unknown[]): items is Policy[] => {
-    return items.length === 0 || isPolicy(items[0]);
-  };
+  // Pagination state
+  const [currentPage, setCurrentPage] = useState(0);
+  const [pageSize, setPageSize] = useState(10);
+  const [totalPages, setTotalPages] = useState(0);
+  const [totalElements, setTotalElements] = useState(0);
+  const [sortField, setSortField] = useState("id");
+  const [sortDirection, setSortDirection] = useState("asc");
 
   useEffect(() => {
-    const fetchPolicies = async () => {
-      try {
-        setLoading(true);
-        const response = await policyApi.getAll();
-        console.log("API Response:", response);
-
-        // Initialize empty policies array
-        let policiesData: Policy[] = [];
-
-        // Handle different response formats
-        if (Array.isArray(response)) {
-          // Direct array response
-          if (isPolicyArray(response)) {
-            policiesData = response;
-          }
-        } else if (response && typeof response === "object") {
-          // Response with data property
-          if ("data" in response && Array.isArray(response.data)) {
-            if (isPolicyArray(response.data)) {
-              policiesData = response.data;
-            }
-          }
-        }
-
-        console.log("Processed policy data:", policiesData);
-        setPolicies(policiesData);
-        setError(null);
-      } catch (err) {
-        console.error("Error fetching policies:", err);
-        setError("Failed to load policies. Please try again later.");
-        setPolicies([]);
-      } finally {
-        setLoading(false);
-      }
-    };
-
     fetchPolicies();
-  }, []);
+  }, [currentPage, pageSize, sortField, sortDirection]);
+
+  const fetchPolicies = async () => {
+    try {
+      setLoading(true);
+      const response = await policyApi.getPaginated(
+        currentPage,
+        pageSize,
+        sortField,
+        sortDirection
+      );
+
+      if (response && response.content) {
+        setPolicies(response.content);
+        setTotalPages(response.totalPages);
+        setTotalElements(response.totalElements);
+        setError(null);
+      } else {
+        console.error("Unexpected response format:", response);
+        setError("Failed to load policies. Unexpected response format.");
+        setPolicies([]);
+      }
+    } catch (err) {
+      console.error("Error fetching policies:", err);
+      setError("Failed to load policies. Please try again later.");
+      setPolicies([]);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleDeletePolicy = async (id: number) => {
     if (window.confirm("Are you sure you want to delete this policy?")) {
       try {
         await policyApi.delete(id);
-        setPolicies(policies.filter((policy) => policy.id !== id));
+        // Refresh the current page after deletion
+        fetchPolicies();
       } catch (err) {
         console.error("Error deleting policy:", err);
         setError("Failed to delete policy. Please try again later.");
       }
+    }
+  };
+
+  const handlePageChange = (newPage: number) => {
+    if (newPage >= 0 && newPage < totalPages) {
+      setCurrentPage(newPage);
+    }
+  };
+
+  const handleSort = (field: string) => {
+    if (field === sortField) {
+      // Toggle sort direction if clicking the same field
+      setSortDirection(sortDirection === "asc" ? "desc" : "asc");
+    } else {
+      // Set new sort field and default to ascending
+      setSortField(field);
+      setSortDirection("asc");
     }
   };
 
@@ -97,43 +100,105 @@ const Policies = () => {
       {!policies || policies.length === 0 ? (
         <p>No policies found. Create a new one to get started.</p>
       ) : (
-        <table className="table">
-          <thead>
-            <tr>
-              <th>Policy Name</th>
-              <th>Status</th>
-              <th>Start Date</th>
-              <th>End Date</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {policies.map((policy) => (
-              <tr key={policy.id}>
-                <td>{policy.policyName}</td>
-                <td>{policy.status}</td>
-                <td>
-                  {new Date(policy.coverageStartDate).toLocaleDateString()}
-                </td>
-                <td>{new Date(policy.coverageEndDate).toLocaleDateString()}</td>
-                <td className="action-buttons">
-                  <Link to={`/policies/${policy.id}`}>
-                    <button>View</button>
-                  </Link>
-                  <Link to={`/policies/edit/${policy.id}`}>
-                    <button className="btn-edit">Edit</button>
-                  </Link>
-                  <button
-                    className="btn-delete"
-                    onClick={() => handleDeletePolicy(policy.id)}
-                  >
-                    Delete
-                  </button>
-                </td>
+        <>
+          <table className="table">
+            <thead>
+              <tr>
+                <th onClick={() => handleSort("policyName")}>
+                  Policy Name{" "}
+                  {sortField === "policyName" &&
+                    (sortDirection === "asc" ? "▲" : "▼")}
+                </th>
+                <th onClick={() => handleSort("status")}>
+                  Status{" "}
+                  {sortField === "status" &&
+                    (sortDirection === "asc" ? "▲" : "▼")}
+                </th>
+                <th onClick={() => handleSort("coverageStartDate")}>
+                  Start Date{" "}
+                  {sortField === "coverageStartDate" &&
+                    (sortDirection === "asc" ? "▲" : "▼")}
+                </th>
+                <th onClick={() => handleSort("coverageEndDate")}>
+                  End Date{" "}
+                  {sortField === "coverageEndDate" &&
+                    (sortDirection === "asc" ? "▲" : "▼")}
+                </th>
+                <th>Actions</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {policies.map((policy) => (
+                <tr key={policy.id}>
+                  <td>{policy.policyName}</td>
+                  <td>{policy.status}</td>
+                  <td>
+                    {new Date(policy.coverageStartDate).toLocaleDateString()}
+                  </td>
+                  <td>
+                    {new Date(policy.coverageEndDate).toLocaleDateString()}
+                  </td>
+                  <td className="action-buttons">
+                    <Link to={`/policies/${policy.id}`}>
+                      <button>View</button>
+                    </Link>
+                    <Link to={`/policies/edit/${policy.id}`}>
+                      <button className="btn-edit">Edit</button>
+                    </Link>
+                    <button
+                      className="btn-delete"
+                      onClick={() => handleDeletePolicy(policy.id)}
+                    >
+                      Delete
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+
+          <div className="pagination">
+            <button
+              onClick={() => handlePageChange(0)}
+              disabled={currentPage === 0}
+            >
+              First
+            </button>
+            <button
+              onClick={() => handlePageChange(currentPage - 1)}
+              disabled={currentPage === 0}
+            >
+              Previous
+            </button>
+            <span>
+              Page {currentPage + 1} of {totalPages}
+              {totalElements > 0 && ` • Total: ${totalElements}`}
+            </span>
+            <button
+              onClick={() => handlePageChange(currentPage + 1)}
+              disabled={currentPage >= totalPages - 1}
+            >
+              Next
+            </button>
+            <button
+              onClick={() => handlePageChange(totalPages - 1)}
+              disabled={currentPage >= totalPages - 1}
+            >
+              Last
+            </button>
+            <select
+              value={pageSize}
+              onChange={(e) => setPageSize(Number(e.target.value))}
+              aria-label="Items per page"
+              title="Items per page"
+            >
+              <option value="5">5</option>
+              <option value="10">10</option>
+              <option value="20">20</option>
+              <option value="50">50</option>
+            </select>
+          </div>
+        </>
       )}
     </div>
   );

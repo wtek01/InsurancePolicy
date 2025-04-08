@@ -4,6 +4,7 @@ import {
   Client,
   CreateClientRequest,
   CreatePolicyRequest,
+  PagedResponse,
   Policy,
   UpdateClientRequest,
   UpdatePolicyRequest,
@@ -62,6 +63,18 @@ export const clientApi = {
 export const policyApi = {
   getAll: async (): Promise<ApiResponse<Policy[]>> => {
     const response = await api.get<ApiResponse<Policy[]>>("/policies");
+    return response.data;
+  },
+
+  getPaginated: async (
+    page: number = 0,
+    size: number = 10,
+    sort: string = "id",
+    direction: string = "asc"
+  ): Promise<PagedResponse<Policy>> => {
+    const response = await api.get<PagedResponse<Policy>>("/policies/paged", {
+      params: { page, size, sort, direction },
+    });
     return response.data;
   },
 

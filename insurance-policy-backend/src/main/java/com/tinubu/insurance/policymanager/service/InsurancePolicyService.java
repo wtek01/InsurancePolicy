@@ -4,10 +4,15 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
 
 import com.tinubu.insurance.policymanager.dto.InsurancePolicyDTO;
+import com.tinubu.insurance.policymanager.dto.PagedResponse;
 import com.tinubu.insurance.policymanager.exception.PolicyNotFoundException;
 import com.tinubu.insurance.policymanager.model.InsurancePolicy;
 import com.tinubu.insurance.policymanager.repository.InsurancePolicyRepository;
@@ -25,6 +30,28 @@ public class InsurancePolicyService {
         return policyRepository.findAll().stream()
                 .map(this::convertToDTO)
                 .collect(Collectors.toList());
+    }
+    
+    public PagedResponse<InsurancePolicyDTO> getPoliciesPaginated(int page, int size, String sortBy, String direction) {
+        Sort sort = direction.equalsIgnoreCase(Sort.Direction.ASC.name()) ?
+                Sort.by(sortBy).ascending() :
+                Sort.by(sortBy).descending();
+                
+        Pageable pageable = PageRequest.of(page, size, sort);
+        Page<InsurancePolicy> policiesPage = policyRepository.findAll(pageable);
+        
+        List<InsurancePolicyDTO> content = policiesPage.getContent().stream()
+                .map(this::convertToDTO)
+                .collect(Collectors.toList());
+                
+        return PagedResponse.<InsurancePolicyDTO>builder()
+                .content(content)
+                .page(policiesPage.getNumber())
+                .size(policiesPage.getSize())
+                .totalElements(policiesPage.getTotalElements())
+                .totalPages(policiesPage.getTotalPages())
+                .last(policiesPage.isLast())
+                .build();
     }
 
     public InsurancePolicyDTO getPolicyById(Long id) {
