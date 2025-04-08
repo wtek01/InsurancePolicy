@@ -62,6 +62,14 @@ public class InsurancePolicy {
     @PrePersist
     @PreUpdate
     private void validateDates() {
+        LocalDate today = LocalDate.now();
+        
+        // Validate that start date is not in the past
+        if (coverageStartDate != null && coverageStartDate.isBefore(today)) {
+            throw new IllegalArgumentException("Coverage start date cannot be in the past");
+        }
+        
+        // Validate that end date is after start date
         if (coverageEndDate != null && coverageStartDate != null && coverageEndDate.isBefore(coverageStartDate)) {
             throw new IllegalArgumentException("Coverage end date must be after start date");
         }

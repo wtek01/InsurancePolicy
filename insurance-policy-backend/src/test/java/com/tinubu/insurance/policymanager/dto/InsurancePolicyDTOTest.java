@@ -61,6 +61,28 @@ class InsurancePolicyDTOTest {
     }
     
     @Test
+    void validateDates_StartDateInPast_ThrowsIllegalArgumentException() {
+        // Arrange
+        LocalDate pastDate = LocalDate.now().minusDays(1); // Yesterday
+        LocalDate endDate = LocalDate.now().plusMonths(6);
+        
+        InsurancePolicyDTO policyDTO = InsurancePolicyDTO.builder()
+                .policyName("Test Policy")
+                .status(PolicyStatus.ACTIVE)
+                .coverageStartDate(pastDate)
+                .coverageEndDate(endDate)
+                .build();
+        
+        // Act & Assert
+        IllegalArgumentException exception = assertThrows(
+                IllegalArgumentException.class,
+                policyDTO::validateDates
+        );
+        
+        assertEquals("Coverage start date cannot be in the past", exception.getMessage());
+    }
+    
+    @Test
     void whenStartDateIsNull_thenValidationFails() {
         // Arrange
         InsurancePolicyDTO policyDTO = InsurancePolicyDTO.builder()

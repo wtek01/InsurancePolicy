@@ -14,6 +14,10 @@ const PolicyForm = ({ policy, onSubmit, isLoading }: PolicyFormProps) => {
     coverageStartDate: "",
     coverageEndDate: "",
   });
+  const [validationErrors, setValidationErrors] = useState<{
+    coverageStartDate?: string;
+    coverageEndDate?: string;
+  }>({});
 
   useEffect(() => {
     if (policy) {
@@ -34,11 +38,58 @@ const PolicyForm = ({ policy, onSubmit, isLoading }: PolicyFormProps) => {
       ...formData,
       [name]: value,
     });
+
+    // Clear validation errors when user changes input
+    if (validationErrors[name as keyof typeof validationErrors]) {
+      setValidationErrors({
+        ...validationErrors,
+        [name]: undefined,
+      });
+    }
+  };
+
+  const validateDates = (): boolean => {
+    const errors: {
+      coverageStartDate?: string;
+      coverageEndDate?: string;
+    } = {};
+    let isValid = true;
+
+    // Get current date (normalized to midnight for comparison)
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    // Parse the dates for validation
+    const startDate = formData.coverageStartDate
+      ? new Date(formData.coverageStartDate)
+      : null;
+    const endDate = formData.coverageEndDate
+      ? new Date(formData.coverageEndDate)
+      : null;
+
+    // Validate start date is not in the past
+    if (startDate && startDate < today) {
+      errors.coverageStartDate = "Start date cannot be in the past";
+      isValid = false;
+    }
+
+    // Validate end date is after start date
+    if (startDate && endDate && endDate < startDate) {
+      errors.coverageEndDate = "End date must be after start date";
+      isValid = false;
+    }
+
+    setValidationErrors(errors);
+    return isValid;
   };
 
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
-    onSubmit(formData);
+
+    // Validate dates before submitting
+    if (validateDates()) {
+      onSubmit(formData);
+    }
   };
 
   return (
@@ -87,8 +138,14 @@ const PolicyForm = ({ policy, onSubmit, isLoading }: PolicyFormProps) => {
             name="coverageStartDate"
             value={formData.coverageStartDate}
             onChange={handleChange}
+            min={new Date().toISOString().split("T")[0]} // Set min to today
             required
           />
+          {validationErrors.coverageStartDate && (
+            <div className="error-message">
+              {validationErrors.coverageStartDate}
+            </div>
+          )}
         </div>
         <div className="form-group" style={{ flex: 1 }}>
           <label className="form-label" htmlFor="coverageEndDate">
@@ -100,8 +157,17 @@ const PolicyForm = ({ policy, onSubmit, isLoading }: PolicyFormProps) => {
             name="coverageEndDate"
             value={formData.coverageEndDate}
             onChange={handleChange}
+            min={
+              formData.coverageStartDate ||
+              new Date().toISOString().split("T")[0]
+            } // Set min to start date or today
             required
           />
+          {validationErrors.coverageEndDate && (
+            <div className="error-message">
+              {validationErrors.coverageEndDate}
+            </div>
+          )}
         </div>
       </div>
 

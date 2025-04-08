@@ -5,7 +5,9 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
+import java.lang.reflect.Method;
 import java.time.LocalDate;
 import java.util.Set;
 
@@ -53,6 +55,35 @@ class InsurancePolicyTest {
         
         // Act & Assert
         assertFalse(policy.getCoverageEndDate().isAfter(policy.getCoverageStartDate()));
+    }
+    
+    @Test
+    void validateDates_StartDateInPast_ChecksInvalidDates() throws Exception {
+        // Arrange
+        LocalDate pastDate = LocalDate.now().minusDays(1); // Yesterday
+        LocalDate endDate = LocalDate.now().plusMonths(6);
+        
+        InsurancePolicy policy = InsurancePolicy.builder()
+                .policyName("Test Policy")
+                .status(PolicyStatus.ACTIVE)
+                .coverageStartDate(pastDate)
+                .coverageEndDate(endDate)
+                .build();
+        
+        // Use reflection to access private method
+        Method validateDatesMethod = InsurancePolicy.class.getDeclaredMethod("validateDates");
+        validateDatesMethod.setAccessible(true);
+        
+        try {
+            // Act
+            validateDatesMethod.invoke(policy);
+            fail("Expected IllegalArgumentException to be thrown");
+        } catch (Exception e) {
+            // Assert - extract the actual exception from the InvocationTargetException
+            Throwable cause = e.getCause();
+            assertTrue(cause instanceof IllegalArgumentException);
+            assertEquals("Coverage start date cannot be in the past", cause.getMessage());
+        }
     }
     
     @Test
