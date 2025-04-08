@@ -1,0 +1,74 @@
+# Node.js
+node_modules/
+npm-debug.log
+yarn-debug.log
+yarn-error.log
+.pnpm-debug.log
+.npm
+.yarn/cache
+.yarn/unplugged
+.yarn/build-state.yml
+.yarn/install-state.gz
+
+# Frontend build
+insurance-policy-frontend/dist/
+insurance-policy-frontend/.vite/
+insurance-policy-frontend/coverage/
+
+# Java
+*.class
+*.jar
+*.war
+*.ear
+*.logs
+*.log
+*.zip
+*.tar.gz
+*.rar
+target/
+.mvn/wrapper/maven-wrapper.jar
+
+# Spring Boot
+insurance-policy-backend/target/
+insurance-policy-backend/.mvn/wrapper/maven-wrapper.jar
+insurance-policy-backend/!src/main/**/target/
+insurance-policy-backend/!src/test/**/target/
+
+# IDEs and editors
+.idea/
+.vscode/
+*.sublime-workspace
+.settings/
+.classpath
+.factorypath
+.project
+.springBeans
+.sts4-cache
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.swp
+*.sw?
+.DS_Store
+Thumbs.db
+
+# Docker
+.docker/
+docker-volumes/
+
+# Environment variables
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Database
+*.db
+*.sqlite
+postgres_data/
+
+# Log files
+logs/
+*.log 

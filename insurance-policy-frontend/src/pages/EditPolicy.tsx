@@ -14,6 +14,20 @@ const EditPolicy = () => {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  // Type guard to check if an object is a Policy
+  const isPolicyObject = (obj: unknown): obj is Policy => {
+    return !!(
+      obj &&
+      typeof obj === "object" &&
+      obj !== null &&
+      "id" in obj &&
+      "policyName" in obj &&
+      "status" in obj &&
+      "coverageStartDate" in obj &&
+      "coverageEndDate" in obj
+    );
+  };
+
   useEffect(() => {
     const fetchPolicy = async () => {
       if (!id) return;
@@ -27,13 +41,8 @@ const EditPolicy = () => {
         if (response) {
           if ("data" in response && response.data) {
             setPolicy(response.data);
-          } else if (
-            typeof response === "object" &&
-            response !== null &&
-            "id" in response &&
-            "policyName" in response
-          ) {
-            setPolicy(response as Policy);
+          } else if (isPolicyObject(response)) {
+            setPolicy(response);
           } else {
             throw new Error("Invalid response format");
           }

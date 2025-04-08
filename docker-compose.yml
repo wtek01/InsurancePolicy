@@ -1,6 +1,6 @@
 services:
   backend:
-    build: .
+    build: ./insurance-policy-backend
     ports:
       - "8081:8081"
     environment:
@@ -14,7 +14,10 @@ services:
     restart: on-failure
 
   frontend:
-    build: ./insurance-policy-frontend
+    build:
+      context: ./insurance-policy-frontend
+      args:
+        - VITE_API_BASE_URL=http://localhost:8081/api
     ports:
       - "80:80"
     depends_on:
@@ -31,7 +34,7 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
     ports:
-      - "5432:5432"
+      - "5433:5432"
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U admin -d insurance_db"]
       interval: 10s

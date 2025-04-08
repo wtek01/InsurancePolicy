@@ -25,7 +25,14 @@ const ClientDetails = () => {
 
         // Fetch associated policies
         const policiesResponse = await policyApi.getByClientId(Number(id));
-        setPolicies(policiesResponse.data);
+        // Handle the response properly
+        if (Array.isArray(policiesResponse)) {
+          setPolicies(policiesResponse);
+        } else if (policiesResponse && policiesResponse.data) {
+          setPolicies(policiesResponse.data);
+        } else {
+          setPolicies([]);
+        }
 
         setError(null);
       } catch (err) {
@@ -128,24 +135,24 @@ const ClientDetails = () => {
           <table className="table">
             <thead>
               <tr>
-                <th>Policy Number</th>
-                <th>Type</th>
+                <th>Policy Name</th>
                 <th>Status</th>
                 <th>Start Date</th>
                 <th>End Date</th>
-                <th>Premium</th>
                 <th>Actions</th>
               </tr>
             </thead>
             <tbody>
               {policies.map((policy) => (
                 <tr key={policy.id}>
-                  <td>{policy.policyNumber}</td>
-                  <td>{policy.type}</td>
+                  <td>{policy.policyName}</td>
                   <td>{policy.status}</td>
-                  <td>{new Date(policy.startDate).toLocaleDateString()}</td>
-                  <td>{new Date(policy.endDate).toLocaleDateString()}</td>
-                  <td>${policy.premium.toFixed(2)}</td>
+                  <td>
+                    {new Date(policy.coverageStartDate).toLocaleDateString()}
+                  </td>
+                  <td>
+                    {new Date(policy.coverageEndDate).toLocaleDateString()}
+                  </td>
                   <td className="action-buttons">
                     <Link to={`/policies/${policy.id}`}>
                       <button>View</button>

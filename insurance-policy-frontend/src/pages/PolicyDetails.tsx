@@ -52,7 +52,7 @@ const PolicyDetails = () => {
 
   // Type guard to check if the response is a Policy object
   const isPolicyObject = (obj: unknown): obj is Policy => {
-    return (
+    return !!(
       obj &&
       typeof obj === "object" &&
       obj !== null &&

@@ -10,6 +10,11 @@ const CreatePolicy = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  // Type guard to check if an object is a Policy
+  const isPolicyObject = (obj: unknown): obj is Policy => {
+    return !!(obj && typeof obj === "object" && obj !== null && "id" in obj);
+  };
+
   const handleSubmit = async (policyData: CreatePolicyRequest) => {
     try {
       setLoading(true);
@@ -22,8 +27,8 @@ const CreatePolicy = () => {
       if (response) {
         if ("data" in response && response.data && "id" in response.data) {
           policyId = response.data.id;
-        } else if ("id" in response) {
-          policyId = (response as Policy).id;
+        } else if (isPolicyObject(response)) {
+          policyId = response.id;
         }
       }
 

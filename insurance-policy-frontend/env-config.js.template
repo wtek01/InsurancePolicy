@@ -1,0 +1,4 @@
+// This file is dynamically replaced at container startup
+window.ENV = {
+  VITE_API_BASE_URL: "${VITE_API_BASE_URL}"
+}; 
