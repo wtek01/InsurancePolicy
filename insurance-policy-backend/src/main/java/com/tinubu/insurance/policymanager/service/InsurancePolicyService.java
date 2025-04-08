@@ -1,18 +1,23 @@
 package com.tinubu.insurance.policymanager.service;
 
-import com.tinubu.insurance.policymanager.dto.InsurancePolicyDTO;
-import com.tinubu.insurance.policymanager.exception.PolicyNotFoundException;
-import com.tinubu.insurance.policymanager.model.InsurancePolicy;
-import com.tinubu.insurance.policymanager.repository.InsurancePolicyRepository;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
-
 import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.springframework.stereotype.Service;
+import org.springframework.validation.annotation.Validated;
+
+import com.tinubu.insurance.policymanager.dto.InsurancePolicyDTO;
+import com.tinubu.insurance.policymanager.exception.PolicyNotFoundException;
+import com.tinubu.insurance.policymanager.model.InsurancePolicy;
+import com.tinubu.insurance.policymanager.repository.InsurancePolicyRepository;
+
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+
 @Service
 @RequiredArgsConstructor
+@Validated
 public class InsurancePolicyService {
     private final InsurancePolicyRepository policyRepository;
 
@@ -28,7 +33,7 @@ public class InsurancePolicyService {
         return convertToDTO(policy);
     }
 
-    public InsurancePolicyDTO createPolicy(InsurancePolicyDTO policyDTO) {
+    public InsurancePolicyDTO createPolicy(@Valid InsurancePolicyDTO policyDTO) {
         InsurancePolicy policy = convertToEntity(policyDTO);
         policy.setCreatedAt(LocalDate.now());
         policy.setUpdatedAt(LocalDate.now());
@@ -36,7 +41,7 @@ public class InsurancePolicyService {
         return convertToDTO(savedPolicy);
     }
 
-    public InsurancePolicyDTO updatePolicy(Long id, InsurancePolicyDTO policyDTO) {
+    public InsurancePolicyDTO updatePolicy(Long id, @Valid InsurancePolicyDTO policyDTO) {
         InsurancePolicy existingPolicy = policyRepository.findById(id)
                 .orElseThrow(() -> new PolicyNotFoundException("Policy not found with id: " + id));
 

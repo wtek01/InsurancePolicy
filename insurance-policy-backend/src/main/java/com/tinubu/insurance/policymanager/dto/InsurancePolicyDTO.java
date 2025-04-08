@@ -1,14 +1,19 @@
 package com.tinubu.insurance.policymanager.dto;
 
-import com.tinubu.insurance.policymanager.model.PolicyStatus;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
-import lombok.Builder;
-import lombok.Data;
-
 import java.time.LocalDate;
 
+import com.tinubu.insurance.policymanager.model.PolicyStatus;
+
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
 @Builder
 public class InsurancePolicyDTO {
     private Long id;
@@ -27,4 +32,12 @@ public class InsurancePolicyDTO {
     
     private LocalDate createdAt;
     private LocalDate updatedAt;
+    
+    // Custom validation to ensure end date is after start date
+    public void validateDates() {
+        if (coverageEndDate != null && coverageStartDate != null 
+                && coverageEndDate.isBefore(coverageStartDate)) {
+            throw new IllegalArgumentException("Coverage end date must be after start date");
+        }
+    }
 }
