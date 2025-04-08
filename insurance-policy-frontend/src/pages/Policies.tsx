@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { policyApi } from "../api/apiClient";
+import { policyApi } from "../api/insuranceApiService";
 import Alert from "../components/Alert";
 import Loading from "../components/Loading";
 import {

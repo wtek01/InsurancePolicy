@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { policyApi } from "../api/apiClient";
+import { policyApi } from "../api/insuranceApiService";
 import Alert from "../components/Alert";
 import PolicyForm from "../components/PolicyForm";
 import { CreatePolicyRequest, Policy } from "../types";

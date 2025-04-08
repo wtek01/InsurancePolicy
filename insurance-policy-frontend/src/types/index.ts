@@ -1,15 +1,3 @@
-export interface Client {
-  id: number;
-  firstName: string;
-  lastName: string;
-  email: string;
-  phoneNumber: string;
-  address: string;
-  dateOfBirth: string;
-  createdAt: string;
-  updatedAt: string;
-}
-
 export interface Policy {
   id: number;
   policyName: string;
@@ -34,19 +22,6 @@ export enum PolicyStatus {
   CANCELLED = "CANCELLED",
   PENDING = "PENDING",
   INACTIVE = "INACTIVE",
-}
-
-export interface CreateClientRequest {
-  firstName: string;
-  lastName: string;
-  email: string;
-  phoneNumber: string;
-  address: string;
-  dateOfBirth: string;
-}
-
-export interface UpdateClientRequest extends CreateClientRequest {
-  id: number;
 }
 
 export interface CreatePolicyRequest {

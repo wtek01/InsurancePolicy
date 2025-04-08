@@ -16,22 +16,13 @@ const Home = () => {
             <button>Create New Policy</button>
           </Link>
         </div>
-        <div className="form-row" style={{ marginTop: "1rem" }}>
-          <Link to="/clients">
-            <button>View All Clients</button>
-          </Link>
-          <Link to="/clients/create">
-            <button>Create New Client</button>
-          </Link>
-        </div>
       </div>
 
       <div className="card">
         <h2>About This Application</h2>
         <p>
-          This application allows insurance agents to manage policies and
-          clients. You can create, view, update, and delete insurance policies
-          and client information.
+          This application allows insurance agents to manage policies. You can
+          create, view, update, and delete insurance policies.
         </p>
       </div>
     </div>
